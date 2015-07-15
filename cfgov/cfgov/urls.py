@@ -2,15 +2,17 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
+from cfgov.views import office, subpage
+
 from sheerlike.views.generic import SheerTemplateView
 
 
 urlpatterns = [
     url(r'^$', SheerTemplateView.as_view(), name='home'),
-    
+
     url(r'^blog/', include([
         url(r'^$', TemplateView.as_view(template_name='blog/index.html'),
-                   name='index'), 
+                   name='index'),
         url(r'^(?P<doc_id>[\w-]+)/$',
                    SheerTemplateView.as_view(doc_type='posts',
                                            local_name='post',
@@ -19,7 +21,7 @@ urlpatterns = [
 
     url(r'^newsroom/', include([
         url(r'^$', TemplateView.as_view(template_name='newsroom/index.html'),
-                   name='index'), 
+                   name='index'),
         url(r'^press-resources/$',
             TemplateView.as_view(template_name='newsroom/press-resources/index.html'),
             name='press-resources'),
@@ -33,7 +35,7 @@ urlpatterns = [
         url(r'^$', TemplateView.as_view(template_name='budget/index.html'), name='home'),
         url(r'^(?P<page_slug>[\w-]+)/$',
             SheerTemplateView.as_view(),
-            name='page'), 
+            name='page'),
         ], namespace="budget")),
 
     url(r'^the-bureau/', include([
@@ -60,20 +62,12 @@ urlpatterns = [
             name='index'),
 
     ], namespace='contact-us')),
-
     url(r'^offices/', include([
-        url(r'^(?P<doc_id>[\w-]+)/$',
-                   SheerTemplateView.as_view(doc_type='office',
-                                           local_name='office',
-                                           default_template='offices/_single.html',),name='detail')
-    ], namespace='offices')),
-
-    url(r'^sub-pages/', include([
-        url(r'^(?P<doc_id>[\w-]+)/$',
-                   SheerTemplateView.as_view(doc_type='sub_page',
-                                           local_name='sub_page',
-                                           default_template='sub-pages/_single.html',),name='detail')
-    ], namespace='sub_page')),
+        url(r'^(?P<office_id>[\w-]+)/$', 'cfgov.views.office', name='office'),
+        url(r'^(?P<office_id>[\w-]+)/(?P<subpage_id>[\w-]+)/$', 'cfgov.views.subpage', name='sub_page')
+                              ], namespace='offices'
+        )
+    ),
     url(r'^activity-log/$', TemplateView.as_view(template_name='activity-log/index.html'), name='activity-log'),
 ]
 
@@ -81,5 +75,3 @@ from sheerlike import register_permalink
 
 register_permalink('posts', 'blog:detail')
 register_permalink('newsroom', 'newsroom:detail')
-register_permalink('office', 'offices:detail')
-register_permalink('sub_page', 'sub_page:detail')
